@@ -34,4 +34,26 @@ def handle_non_numerical_data(df):
     return df
 
 df = handle_non_numerical_data(df)
-print(df.head())
+# print(df.head())
+
+df.drop(['sex', 'boat'], axis=1, inplace=True)
+X = np.array(df.drop('survived', axis=1)).astype(float)
+X = preprocessing.scale(X)
+y = np.array(df['survived'])
+
+clf = KMeans(n_clusters=2)
+clf.fit(X)
+
+correct = 0
+for i in range(len(X)):
+    predict_me = np.array(X[i].astype(float))
+    predict_me = predict_me.reshape(-1, len(predict_me))
+    # kmeans needs input in shape (n_sample, n_features).
+    # We only have a 1D array of just features.
+    # -1 tells NumPy to figure out the number of samples (here, 1)
+    # So the new shape is (1, n_features), which is a 2D array
+    prediction = clf.predict(predict_me)
+    if prediction[0] == y[i]:
+        correct += 1
+
+print(correct/len(X))
